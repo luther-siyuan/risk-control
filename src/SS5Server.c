@@ -73,7 +73,8 @@ void S5SetDynamic( void )
   SS5SocksOpt.StickyAge          = STICKY_AGE;
   SS5SocksOpt.Sticky             = ERR;
   SS5SocksOpt.Verbose            = ERR;
-  SS5SocksOpt.Debug              = ERR;
+  // SS5SocksOpt.Debug              = ERR;
+  SS5SocksOpt.Debug              = OK;
   SS5SocksOpt.DnsOrder           = ERR;
   SS5SocksOpt.IsBalance          = ERR;
   SS5SocksOpt.IsDump             = ERR;
