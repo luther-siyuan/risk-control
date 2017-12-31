@@ -222,7 +222,7 @@ UINT S5LoadModules( void )
   strncpy(libpath,S5LibPath,sizeof(S5LibPath));
   STRSCAT(libpath,"/mod_filter.so");
 
-  SS5Modules.mod_filter_handle = dlopen(libpath,RTLD_LAZY);
+  SS5Modules.mod_filter_handle = dlopen(libpath,RTLD_LAZY);   // dlopen 打开动态链接库
   if( !SS5Modules.mod_filter_handle) {
     fprintf(stderr,"[WARN] Modules mod_filter.so not found in %s. Module not loaded.\n",S5LibPath);
     SS5Modules.mod_filter_loaded=ERR;
@@ -233,7 +233,7 @@ UINT S5LoadModules( void )
    /*
     *    Initialize module    
     */
-    *(void **) (&InitModule) = dlsym(SS5Modules.mod_filter_handle,"InitModule");
+    *(void **) (&InitModule) = dlsym(SS5Modules.mod_filter_handle,"InitModule");    // 根据动态链接库操作句柄与符号，返回符号对应的地址
     if((error = dlerror()) != NULL) {
       fprintf(stderr, "[ERRO] Error initializing module mod_filter.so. SS5 exiting...\n");
       S5ServerClose(EXIT);

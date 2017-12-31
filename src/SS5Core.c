@@ -147,9 +147,9 @@ UINT S5Core( int cSocket )
    *    Get child/thread pid
    */
   if( NOTTHREADED() )
-    pid=getpid();
+    pid=getpid();     // 获取进程pid
   else
-    pid=(UINT)pthread_self();
+    pid=(UINT)pthread_self();   // 获取当前线程自身tid
 
   /*
    *    Allocate proxy data buffers
@@ -1146,7 +1146,13 @@ UINT S5Core( int cSocket )
       }
       /*
        *    Module FILTER: call --> Filtering
+       *    MODFILTER() 模块是否加载成功
        */
+
+      // 调试facilities, facilities 限制用户组能够代理的协议、带宽及有效期限
+      if(Debug()) {
+        S5DebugFacilities(pid, SS5Facilities);
+      }
       if( MODFILTER() && FILTER() ) {
         if( SS5Modules.mod_filter.Filtering( &SS5ClientInfo, SS5Facilities.Fixup, &SS5ProxyData ) <= ERR ) {
           /*

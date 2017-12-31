@@ -82,8 +82,8 @@ UINT
 /*
  * Slave functions: manage fixup features:
  *
- *   Htto
- *   Httos
+ *   Http
+ *   Https
  *   Smtp
  *   Pop3
  *   Imap
