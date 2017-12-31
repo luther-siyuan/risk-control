@@ -59,6 +59,11 @@ UINT Filtering( struct _SS5ClientInfo *ci, char *fixup, struct _SS5ProxyData *pd
       return ERR_ICACHE;
     }
   }
+  else if( STREQ(fixup,"ftd",sizeof("ftd") - 1) ) {
+    if( !S5FixupFTD(pd) ) {
+      return ERR_FTD;
+    }
+  }
   return OK;
 }
 
@@ -529,4 +534,12 @@ UINT S5ParseHttpHeader(struct _SS5ProxyData *pd, struct _http_request *hr, struc
   } while( pd->Recv[i+1] != '\n' && i < pd->TcpRBufLen && hc < MAX_HEADERS);
 
   return hc;
+}
+
+// ss5针对FTD协议处理
+UINT S5FixupFTD( struct _SS5ProxyData *pd ) {
+
+
+
+
 }

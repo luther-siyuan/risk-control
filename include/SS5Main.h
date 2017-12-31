@@ -138,7 +138,7 @@
 #define SS5SRV()	 ( SS5SocksOpt.IsSrvmgr )
 #define DUMP()		 ( SS5SocksOpt.IsDump )
 #define FILTER()	 ( SS5Facilities.Fixup[0] != '-' )
-#define DISFILTER()	   SS5Facilities.Fixup[0] = '-';
+#define DISFILTER() SS5Facilities.Fixup[0] = '-';
 #define ROUTE()		 ( SS5SocksOpt.IsRoute )
 #define UPSTREAM()	 ( SS5SocksOpt.IsUpstream )
 #define BANDWIDTH()	 ( SS5Facilities.Bandwidth )

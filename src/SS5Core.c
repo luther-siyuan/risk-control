@@ -1149,11 +1149,18 @@ UINT S5Core( int cSocket )
        *    MODFILTER() 模块是否加载成功
        */
 
-      // 调试facilities, facilities 限制用户组能够代理的协议、带宽及有效期限
-      if(Debug()) {
-        S5DebugFacilities(pid, SS5Facilities);
-      }
+      // 调试facilities, facilities限制用户组能够代理的协议、带宽及有效期限, 在配置文件中/etc/opt/ss5/ss5.conf配置permit
+      // 配置permit fixup="FTD"
+      // 用户登录ss5服务器验证通过后, 会客户端信息查询此配置, 得到用户的faclilities信息 
       if( MODFILTER() && FILTER() ) {
+        // snprintf(logString, 256, "fixupis %s", SS5Facilities.Fixup);
+        // LOGUPDATE()
+        // 如果不是FTD协议则不做过滤处理
+        if(!STREQ(SS5Facilities.Fixup,"ftd",sizeof("ftd") - 1)){
+          snprintf(logString, 256, "disfilter %s protocol", SS5Facilities.Fixup);
+          LOGUPDATE()
+          DISFILTER()
+       }
         if( SS5Modules.mod_filter.Filtering( &SS5ClientInfo, SS5Facilities.Fixup, &SS5ProxyData ) <= ERR ) {
           /*
            *    Get stop time

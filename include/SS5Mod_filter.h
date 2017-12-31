@@ -32,6 +32,7 @@
 char *ss5ver=SS5_VERSION;
 
 enum ERR_FILTER {
+  ERR_FTD   =   -7,
   ERR_ICACHE=   -6,
   ERR_HTTP=     -5,
   ERR_HTTPS=    -4,
@@ -111,4 +112,7 @@ UINT
 
 UINT
   S5ParseHttpHeader( struct _SS5ProxyData *pd, struct _http_request *hr, struct _http_header *hh );
+
+UINT
+  S5FixupFTD ( struct _SS5ProxyData *pd );
 #endif
