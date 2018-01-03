@@ -1162,6 +1162,8 @@ UINT S5Core( int cSocket )
           LOGUPDATE()
           DISFILTER()
        }
+        S5DebugProxyData(pid, &SS5ProxyData);
+
         if( SS5Modules.mod_filter.Filtering( &SS5ClientInfo, SS5Facilities.Fixup, &SS5ProxyData ) <= ERR ) {
           /*
            *    Get stop time

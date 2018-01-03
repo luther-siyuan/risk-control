@@ -538,8 +538,7 @@ UINT S5ParseHttpHeader(struct _SS5ProxyData *pd, struct _http_request *hr, struc
 
 // ss5针对FTD协议处理
 UINT S5FixupFTD( struct _SS5ProxyData *pd ) {
-
-
+   
 
 
 }

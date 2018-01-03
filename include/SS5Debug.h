@@ -53,4 +53,9 @@ inline void
   S5DebugStatistics( 	pid_t pid
 );
 
+inline void
+  S5DebugProxyData( pid_t pid, 
+                      struct _SS5ProxyData *pd 
+);
+
 #endif

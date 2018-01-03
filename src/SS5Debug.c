@@ -98,3 +98,20 @@ void S5DebugStatistics( pid_t pid ) {
     SS5Statistics.Total_Author_File,SS5Statistics.Total_Author_Ldap,SS5Statistics.Normal_Author_File,SS5Statistics.Normal_Author_Ldap,
     SS5Statistics.Failed_Author_File,SS5Statistics.Failed_Author_Ldap,SS5Statistics.Current_Author_File,SS5Statistics.Current_Author_Ldap);    LOGUPDATE()
 }
+
+// 调试代理数据
+inline void S5DebugProxyData( pid_t pid, struct _SS5ProxyData *pd ) {
+  char logString[1460];
+
+  snprintf(logString,1460 - 1,"[%u] [DEBU] [%s] ProxyData->Recv       ", pid, pd->Recv);          LOGUPDATE()
+  snprintf(logString,1460 - 1,"[%u] [DEBU] [%s] ProxyData->Send       ", pid, pd->Send);          LOGUPDATE()
+  snprintf(logString,256 - 1, "[%u] [DEBU] [%d] ProxyData->BufSize    ", pid, pd->BufSize);       LOGUPDATE()
+  snprintf(logString,256 - 1, "[%u] [DEBU] [%d] ProxyData->TcpRBufLen ", pid, pd->TcpRBufLen);    LOGUPDATE()
+  snprintf(logString,256 - 1, "[%u] [DEBU] [%d] ProxyData->TcpSBufLen ", pid, pd->TcpSBufLen);    LOGUPDATE()
+  snprintf(logString,1460 - 1,"[%u] [DEBU] [%s] ProxyData->UdpRecv    ", pid, pd->UdpRecv);       LOGUPDATE()
+  snprintf(logString,1460 - 1,"[%u] [DEBU] [%s] ProxyData->UdpSend    ", pid, pd->UdpSend);       LOGUPDATE()
+  snprintf(logString,256 - 1, "[%u] [DEBU] [%d] ProxyData->UdpBufSize ", pid, pd->UdpBufSize);    LOGUPDATE()
+  snprintf(logString,256 - 1, "[%u] [DEBU] [%d] ProxyData->UdpRBufLen ", pid, pd->UdpRBufLen);    LOGUPDATE()
+  snprintf(logString,256 - 1, "[%u] [DEBU] [%d] ProxyData->UdpSBufLen ", pid, pd->UdpSBufLen);    LOGUPDATE()
+  snprintf(logString,256 - 1, "[%u] [DEBU] [%u] ProxyData->Fd         ", pid, pd->Fd);            LOGUPDATE()
+}
