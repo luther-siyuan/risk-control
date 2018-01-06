@@ -25,6 +25,7 @@
 inline void S5DebugMethodInfo( pid_t pid, struct _SS5ClientInfo ci ) {
   char logString[256];
 
+  snprintf(logString,256 - 1,"[%u] [DEBU] S5DebugMethodInfo-----------------------",pid);          LOGUPDATE()
   snprintf(logString,256 - 1,"[%u] [DEBU] MethodInfo->Ver       %5d.",pid,ci.Ver);          LOGUPDATE()
   snprintf(logString,256 - 1,"[%u] [DEBU] MethodInfo->NMeth     %5d.",pid,ci.NMeth);        LOGUPDATE()
   snprintf(logString,256 - 1,"[%u] [DEBU] MethodInfo->NoAuth    %5d.",pid,ci.NoAuth);       LOGUPDATE()
@@ -35,6 +36,7 @@ inline void S5DebugMethodInfo( pid_t pid, struct _SS5ClientInfo ci ) {
 inline void S5DebugAuthInfo( pid_t pid, struct _SS5ClientInfo ci ) {
   char logString[256];
 
+  snprintf(logString,256 - 1,"[%u] [DEBU] S5DebugAuthInfo-----------------------",pid);          LOGUPDATE()
   snprintf(logString,256 - 1,"[%u] [DEBU] AuthInfo->Username %s.",pid,ci.Username);    LOGUPDATE()
   snprintf(logString,256 - 1,"[%u] [DEBU] AuthInfo->Password xxxxxxxxxxxx.",pid);      LOGUPDATE()
 }
@@ -42,6 +44,7 @@ inline void S5DebugAuthInfo( pid_t pid, struct _SS5ClientInfo ci ) {
 inline void S5DebugRequestInfo( pid_t pid, struct _SS5RequestInfo ri ) {
   char logString[256];
 
+  snprintf(logString,256 - 1,"[%u] [DEBU] S5DebugRequestInfo-----------------------",pid);          LOGUPDATE()
   snprintf(logString,256 - 1,"[%u] [DEBU] RequestInfo->Ver       %5d.",pid,ri.Ver);       LOGUPDATE()
   snprintf(logString,256 - 1,"[%u] [DEBU] RequestInfo->Cmd       %5d.",pid,ri.Cmd);       LOGUPDATE()
   snprintf(logString,256 - 1,"[%u] [DEBU] RequestInfo->Rsv       %5d.",pid,ri.Rsv);       LOGUPDATE()
@@ -53,6 +56,7 @@ inline void S5DebugRequestInfo( pid_t pid, struct _SS5RequestInfo ri ) {
 inline void S5DebugUdpRequestInfo( pid_t pid, struct _SS5RequestInfo ri ) {
   char logString[256];
 
+  snprintf(logString,256 - 1,"[%u] [DEBU] S5DebugUdpRequestInfo-----------------------",pid);          LOGUPDATE()
   snprintf(logString,256 - 1,"[%u] [DEBU] UdpRequestInfo->Rsv       %5d.",pid,ri.udpRsv);        LOGUPDATE()
   snprintf(logString,256 - 1,"[%u] [DEBU] UdpRequestInfo->Frag      %5d.",pid,ri.udpFrag);       LOGUPDATE()
   snprintf(logString,256 - 1,"[%u] [DEBU] UdpRequestInfo->ATyp      %5d.",pid,ri.udpATyp);       LOGUPDATE()
@@ -66,6 +70,8 @@ inline void S5DebugUpstreamInfo( pid_t pid, struct _SS5RequestInfo ri ) {
   struct in_addr in;
 
   in.s_addr=ri.upDstAddr;
+
+  snprintf(logString,256 - 1,"[%u] [DEBU] S5DebugUpstreamInfo-----------------------",pid);          LOGUPDATE()
   snprintf(logString,256 - 1,"[%u] [DEBU] UpstreamInfo->DstAddr       %s.",pid,(char *)inet_ntoa(in));     LOGUPDATE()
   snprintf(logString,256 - 1,"[%u] [DEBU] UpstreamInfo->DstPort       %5d.",pid,ri.upDstPort);               LOGUPDATE()
 }
@@ -81,6 +87,7 @@ inline void S5DebugFacilities( pid_t pid, struct _SS5Facilities fa ) {
 void S5DebugStatistics( pid_t pid ) {
   char logString[256];
 
+  snprintf(logString,256 - 1,"[%u] [DEBU] S5DebugStatistics-----------------------",pid);          LOGUPDATE()
   snprintf(logString,256 - 1,"[%u] [DEBU] [STATISTICS]  V5TC:%lu V4TC:%lu V5NC:%lu V4NC:%lu V5FC:%lu V4FC:%lu V5CC:%lu V4CC:%lu.",pid,
     SS5Statistics.V5Total_Connect,SS5Statistics.V4Total_Connect,SS5Statistics.V5Normal_Connect,SS5Statistics.V4Normal_Connect,
     SS5Statistics.V5Failed_Connect,SS5Statistics.V4Failed_Connect,SS5Statistics.V5Current_Connect,SS5Statistics.V4Current_Connect);    LOGUPDATE()
@@ -103,6 +110,7 @@ void S5DebugStatistics( pid_t pid ) {
 inline void S5DebugProxyData( pid_t pid, struct _SS5ProxyData *pd ) {
   char logString[1460];
 
+  snprintf(logString,256 - 1,"[%u] [DEBU] S5DebugProxyData-----------------------",pid);          LOGUPDATE()
   snprintf(logString,1460 - 1,"[%u] [DEBU] [%s] ProxyData->Recv       ", pid, pd->Recv);          LOGUPDATE()
   snprintf(logString,1460 - 1,"[%u] [DEBU] [%s] ProxyData->Send       ", pid, pd->Send);          LOGUPDATE()
   snprintf(logString,256 - 1, "[%u] [DEBU] [%d] ProxyData->BufSize    ", pid, pd->BufSize);       LOGUPDATE()
