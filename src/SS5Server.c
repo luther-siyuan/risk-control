@@ -39,7 +39,7 @@ void S5SetStatic( void )
    *    Set socks server default static values 
    *    Changes require socks restart
    */
-  SS5SocksOpt.IsThreaded       = ERR;
+  SS5SocksOpt.IsThreaded       = OK;
   SS5SocksOpt.Mute             = ERR;
   SS5SocksOpt.PreforkProcesses = 1;
   SS5SocksOpt.PropagateKey     = 0;
@@ -78,8 +78,8 @@ void S5SetDynamic( void )
   SS5SocksOpt.DnsOrder           = ERR;
   SS5SocksOpt.IsBalance          = ERR;
   SS5SocksOpt.IsDump             = ERR;
-  SS5SocksOpt.IsConsole          = ERR;
-  SS5SocksOpt.IsSrvmgr           = ERR;
+  SS5SocksOpt.IsConsole          = OK;
+  SS5SocksOpt.IsSrvmgr           = OK;
   SS5SocksOpt.IsUpstream         = ERR;
   SS5SocksOpt.IsRoute            = ERR;
   SS5SocksOpt.IsBandwidth        = ERR;
