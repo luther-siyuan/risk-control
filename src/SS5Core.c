@@ -107,7 +107,7 @@ UINT S5Core( int cSocket )
   IFEPOLL( struct epoll_event ev; )
   IFEPOLL( struct epoll_event events[5]; )
   IFEPOLL( int nfds; )
-  IFEPOLL( int kdpfd; )
+  IFEPOLL( int kdpfd; )   // 由epoll_create 生成的epoll专用的文件描述符
 
   IFSELECT( int fd; )
   IFSELECT( fd_set arrayFd; )
@@ -1038,8 +1038,8 @@ UINT S5Core( int cSocket )
    *    Proxy data between client and server through socks server
    */
   while(1) {
-    IFSELECT( FD_ZERO(&arrayFd); )
-    IFSELECT( FD_SET(SS5ClientInfo.Socket,&arrayFd); )
+    IFSELECT( FD_ZERO(&arrayFd); )  // 将指定的文件描述符集清空，在对文件描述符集合进行设置前，必须对其进行初始化，如果不清空，由于在系统分配内存空间后，通常并不作清空处理，所以结果是不可知的
+    IFSELECT( FD_SET(SS5ClientInfo.Socket,&arrayFd); )  // 用于在文件描述符集合中增加一个新的文件描述符
     IFSELECT( if( SS5ClientInfo.appSocket >0) FD_SET(SS5ClientInfo.appSocket,&arrayFd); )
     /* 
      *    Set socks server session idle timeout
@@ -1055,8 +1055,8 @@ UINT S5Core( int cSocket )
 
      if( SS5SocksOpt.SessionIdleTimeout ) {
      IFEPOLL( if( SS5SocksOpt.RadSessionIdleTimeout ) )
-     IFEPOLL(   nfds = epoll_wait(kdpfd, events, 5, SS5SocksOpt.RadSessionIdleTimeout*1000); )
-     IFSELECT( fd=select(SS5ClientInfo.appSocket+SS5ClientInfo.Socket+1,&arrayFd,NULL,NULL,&tv); )
+     IFEPOLL(   nfds = epoll_wait(kdpfd, events, 5, SS5SocksOpt.RadSessionIdleTimeout*1000); )  // 等待事件触发，当超过timeout还没有事件触发时，就超时
+     IFSELECT( fd=select(SS5ClientInfo.appSocket+SS5ClientInfo.Socket+1,&arrayFd,NULL,NULL,&tv); )  // 等待事件触发
      IFEPOLL( else )
      IFEPOLL(   nfds = epoll_wait(kdpfd, events, 5, SS5SocksOpt.SessionIdleTimeout*1000); )
      IFSELECT( fd=select(SS5ClientInfo.appSocket+SS5ClientInfo.Socket+1,&arrayFd,NULL,NULL,&tv); )
@@ -1297,6 +1297,11 @@ UINT S5Core( int cSocket )
         tBR +=SS5ProxyData.TcpRBufLen;
 
       if( SS5ProxyData.TcpRBufLen!= RECVERR && SS5ProxyData.TcpRBufLen != ERR) {
+        S5DebugRequestInfo(pid, SS5RequestInfo);
+        S5DebugUpstreamInfo(pid, SS5RequestInfo);
+        S5DebugProxyData(pid, &SS5ProxyData);
+
+
         /*
          *    Module PROXY: call --> SendingData
          */
