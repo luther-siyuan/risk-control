@@ -1148,11 +1148,12 @@ UINT S5Core( int cSocket )
        *    Module FILTER: call --> Filtering
        *    MODFILTER() 模块是否加载成功
        */
-
       // 调试facilities, facilities限制用户组能够代理的协议、带宽及有效期限, 在配置文件中/etc/opt/ss5/ss5.conf配置permit
       // 配置permit fixup="FTD"
       // 用户登录ss5服务器验证通过后, 会客户端信息查询此配置, 得到用户的faclilities信息
-      // 如果客户端和交易服务器之间有其它数据协议干扰，则需要取SS5ProxyData数据流中前4字节是否FTD报头，来重置fixup="FTD"
+      // (如果客户端和交易服务器之间有其它数据协议干扰，则需要取SS5ProxyData数据流中前4字节是否FTD报头，来重置fixup="FTD")
+      // 考虑到效率问题，用户客户端只允许CTP应用经过代理，否则会用其它应用数据通过代理严重消耗代理服务器计算资源
+      // 故采取配置用户组 fixup="FTD" 来识别交易数据
       if( MODFILTER() && FILTER() ) {
         // snprintf(logString, 256, "fixupis %s", SS5Facilities.Fixup);
         // LOGUPDATE()
