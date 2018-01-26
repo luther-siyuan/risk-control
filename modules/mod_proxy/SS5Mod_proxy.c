@@ -27,6 +27,7 @@
 #endif
 
 char *ss5ver=SS5_VERSION;
+char logString[256];
 
 UINT InitModule( struct _module *m )
 {
@@ -69,7 +70,8 @@ INT
   IFEPOLL( if( events[0].data.fd == ci->Socket ) { )
   IFSELECT( if( FD_ISSET(ci->Socket,s5array) ) { )
 
-    pd->Fd = 0;
+  snprintf(logString,256, "从客户端（应用）接收到数据 Fd=%d +++++++++++++ Fd=1 -> Fd=0",pd->Fd);  LOGUPDATE()
+  pd->Fd = 0;
 
 #ifdef SS5_USE_GSSAPI
    /*
@@ -128,6 +130,7 @@ INT
   IFSELECT( else if( FD_ISSET(ci->appSocket,s5array) ) { )
     memset(pd->Recv,0,pd->BufSize);
     pd->TcpRBufLen = recv(ci->appSocket,pd->Recv,pd->BufSize,0);
+    snprintf(logString,256, "从应用服务器接收到数据 Fd=%d +++++++++++++ Fd=0 -> Fd=1", pd->Fd);  LOGUPDATE()
     pd->Fd = 1;
   }
   return OK;
@@ -163,13 +166,14 @@ SendingData( struct _SS5ClientInfo *ci, struct _SS5ProxyData *pd )
       }
     }
 #endif
-
     pd->TcpSBufLen = send(ci->Socket,pd->Send,pd->TcpRBufLen,SS5_SEND_OPT);
+    snprintf(logString,256, "向客户端（应用）发送数据 Fd=1 +++++++++++++");  LOGUPDATE()
   }
   else {
     memset(pd->Send,0,pd->BufSize);
     memcpy(pd->Send,pd->Recv,pd->TcpRBufLen);
     pd->TcpSBufLen = send(ci->appSocket,pd->Send,pd->TcpRBufLen,SS5_SEND_OPT);
+    snprintf(logString,256, "向应用服务器发送数据 Fd=0+++++++++++++");  LOGUPDATE()
   }
 
   return OK;

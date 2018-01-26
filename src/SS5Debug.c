@@ -123,3 +123,15 @@ inline void S5DebugProxyData( pid_t pid, struct _SS5ProxyData *pd ) {
   snprintf(logString,256 - 1, "[%u] [DEBU] [%d] ProxyData->UdpSBufLen ", pid, pd->UdpSBufLen);    LOGUPDATE()
   snprintf(logString,256 - 1, "[%u] [DEBU] [%u] ProxyData->Fd         ", pid, pd->Fd);            LOGUPDATE()
 }
+
+// 调试用户端信息
+inline void S5DebugClientInfo( pid_t pid, struct _SS5ClientInfo *ci ) {
+  char logString[1460];
+
+  snprintf(logString,256 - 1, "[%u] [DEBU] S5ClientInfo-----------------------",pid);         LOGUPDATE()
+  snprintf(logString,256 - 1, "[%u] [DEBU] [%u] ClientInfo->Method", pid, ci->Method);        LOGUPDATE()
+  snprintf(logString,1460 - 1,"[%u] [DEBU] [%s] ClientInfo->SrcAddr", pid, ci->SrcAddr);      LOGUPDATE()
+  snprintf(logString,256 - 1, "[%u] [DEBU] [%u] ClientInfo->SrcPort", pid, ci->SrcPort);      LOGUPDATE()
+  snprintf(logString,256 - 1, "[%u] [DEBU] [%d] ClientInfo->Socket", pid, ci->Socket);        LOGUPDATE()
+  snprintf(logString,256 - 1, "[%u] [DEBU] [%d] ClientInfo->appSocket", pid, ci->appSocket);  LOGUPDATE()
+}

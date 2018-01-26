@@ -58,4 +58,9 @@ inline void
                       struct _SS5ProxyData *pd 
 );
 
+inline void
+  S5DebugClientInfo( pid_t pid, 
+                     struct _SS5ClientInfo *ci
+);
+
 #endif

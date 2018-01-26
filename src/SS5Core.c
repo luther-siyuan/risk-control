@@ -1038,6 +1038,9 @@ UINT S5Core( int cSocket )
    *    Proxy data between client and server through socks server
    */
   while(1) {
+    snprintf(logString,256, "\n\n监听开始（while）>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");  LOGUPDATE()
+    S5DebugClientInfo(pid, &SS5ClientInfo);   // ss5同客户端（包含客户端请求的服务器）的连接信息（socket信息）
+
     IFSELECT( FD_ZERO(&arrayFd); )  // 将指定的文件描述符集清空，在对文件描述符集合进行设置前，必须对其进行初始化，如果不清空，由于在系统分配内存空间后，通常并不作清空处理，所以结果是不可知的
     IFSELECT( FD_SET(SS5ClientInfo.Socket,&arrayFd); )  // 用于在文件描述符集合中增加一个新的文件描述符
     IFSELECT( if( SS5ClientInfo.appSocket >0) FD_SET(SS5ClientInfo.appSocket,&arrayFd); )
@@ -1070,8 +1073,22 @@ UINT S5Core( int cSocket )
       /*
        *    Module PROXY: call --> ReceivingData
        */
+    // 判断数据流走向
+    if(SS5ProxyData.Fd) {
+      snprintf(logString,256, "数据流走向：客户端（应用）>>>>>>>>>>>> 应用服务器");  LOGUPDATE()
+    }else{
+      snprintf(logString,256, "数据流走向：应用服务器 >>>>>>>>>>>> 客户端（应用)");  LOGUPDATE()
+    }
+
+      snprintf(logString,256, "接收到数据前+++++++++++++");  LOGUPDATE()
+      S5DebugProxyData(pid, &SS5ProxyData);
+      
+
       IFEPOLL( SS5Modules.mod_proxy.ReceivingData( &SS5ClientInfo, &SS5ProxyData, events); )
       IFSELECT( SS5Modules.mod_proxy.ReceivingData( &SS5ClientInfo, &SS5ProxyData, &arrayFd); )
+
+      snprintf(logString,256, "接收到数据后+++++++++++++");  LOGUPDATE()
+      S5DebugProxyData(pid, &SS5ProxyData);
       /*
        *    Module DUMP: call --> WritingDump
        */
@@ -1292,21 +1309,31 @@ UINT S5Core( int cSocket )
         }
       }
 
+      /**
+       * SS5ProxyData.Fd = 1, socks服务器与客户端（应用）交互, receive从客户端接受数据, 同时置Fd = 0; send向客户端发送数据
+       * SS5ProxyData.Fd = 0, socks服务器与应用服务器端交互, receive从应用服务器端接受数据, 同时置Fd = 1; send向应用服务器端发送数据
+       */
       if( !SS5ProxyData.Fd )
         tBS +=SS5ProxyData.TcpRBufLen;
       else
         tBR +=SS5ProxyData.TcpRBufLen;
 
+      // 成功接收到数据
       if( SS5ProxyData.TcpRBufLen!= RECVERR && SS5ProxyData.TcpRBufLen != ERR) {
-        S5DebugRequestInfo(pid, SS5RequestInfo);
-        S5DebugUpstreamInfo(pid, SS5RequestInfo);
-        S5DebugProxyData(pid, &SS5ProxyData);
+        // S5DebugRequestInfo(pid, SS5RequestInfo);
+        // S5DebugUpstreamInfo(pid, SS5RequestInfo);  
 
 
         /*
          *    Module PROXY: call --> SendingData
          */
+        snprintf(logString,256, "发送数据前+++++++++++++");  LOGUPDATE()
+        S5DebugProxyData(pid, &SS5ProxyData);
+        S5DebugClientInfo(pid, &SS5ClientInfo);
         SS5Modules.mod_proxy.SendingData(&SS5ClientInfo, &SS5ProxyData);
+
+        snprintf(logString,256, "发送数据后+++++++++++++");  LOGUPDATE()
+        S5DebugProxyData(pid, &SS5ProxyData);
 
         if( SS5ProxyData.TcpSBufLen == SENDERR  ) { 
           /*
