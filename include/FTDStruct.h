@@ -35,7 +35,7 @@ typedef struct
 
 
 // FTD扩展报头
-// 标记类型+标记长度+数据+…，如果没有数据，则标记长度为0
+// 标记类型+标记长度+数据+…，如果没有数据，则补充长度为0
 typedef struct  
 {
 	CtpFTDExTagType				FtdExTag;							//FTDExTag定义

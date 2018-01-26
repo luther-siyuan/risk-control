@@ -299,8 +299,8 @@ struct _SS5ClientInfo{
   UINT SecureBasicAuth;
   UINT Method;
 
-  int  Socket;      // 同客户端（应用）连接的socketId, 此时Fd = 1, 在ReceivingData中Fd置为0, 每个socketId对应一个socket连接对象
-  int  appSocket;   // 同应用服务器连接的socketId, 此时Fd = 0, 在ReceivingData中Fd置为1
+  int  Socket;      // 同客户端（应用）连接的socketId, 此时Fd = 0或1, 在ReceivingData后Fd置为0, 每个socketId对应一个socket连接对象
+  int  appSocket;   // 同应用服务器连接的socketId, 此时Fd = 0或1, 在ReceivingData后Fd置为1
   char SrcAddr[16];
   UINT SrcPort;
   UINT GssEnc;

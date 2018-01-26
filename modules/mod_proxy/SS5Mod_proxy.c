@@ -67,10 +67,10 @@ INT
   /* 
    * Receive data from client
    */
-  IFEPOLL( if( events[0].data.fd == ci->Socket ) { )
+  IFEPOLL( if( events[0].data.fd == ci->Socket ) { )  // 从客户端(应用)接收到数据
   IFSELECT( if( FD_ISSET(ci->Socket,s5array) ) { )
 
-  snprintf(logString,256, "从客户端（应用）接收到数据 Fd=%d +++++++++++++ Fd=1 -> Fd=0",pd->Fd);  LOGUPDATE()
+  snprintf(logString,256, "从客户端（应用）接收到数据 Fd=%d +++++++++++++ Fd=%d -> Fd=0",pd->Fd, pd->Fd);  LOGUPDATE()
   pd->Fd = 0;
 
 #ifdef SS5_USE_GSSAPI

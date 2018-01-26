@@ -1040,7 +1040,7 @@ UINT S5Core( int cSocket )
   while(1) {
     snprintf(logString,256, "\n\n监听开始（while）>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");  LOGUPDATE()
     S5DebugClientInfo(pid, &SS5ClientInfo);   // ss5同客户端（包含客户端请求的服务器）的连接信息（socket信息）
-
+    S5DebugFacilities(pid,SS5Facilities);
     IFSELECT( FD_ZERO(&arrayFd); )  // 将指定的文件描述符集清空，在对文件描述符集合进行设置前，必须对其进行初始化，如果不清空，由于在系统分配内存空间后，通常并不作清空处理，所以结果是不可知的
     IFSELECT( FD_SET(SS5ClientInfo.Socket,&arrayFd); )  // 用于在文件描述符集合中增加一个新的文件描述符
     IFSELECT( if( SS5ClientInfo.appSocket >0) FD_SET(SS5ClientInfo.appSocket,&arrayFd); )
@@ -1073,13 +1073,7 @@ UINT S5Core( int cSocket )
       /*
        *    Module PROXY: call --> ReceivingData
        */
-    // 判断数据流走向
-    if(SS5ProxyData.Fd) {
-      snprintf(logString,256, "数据流走向：客户端（应用）>>>>>>>>>>>> 应用服务器");  LOGUPDATE()
-    }else{
-      snprintf(logString,256, "数据流走向：应用服务器 >>>>>>>>>>>> 客户端（应用)");  LOGUPDATE()
-    }
-
+    
       snprintf(logString,256, "接收到数据前+++++++++++++");  LOGUPDATE()
       S5DebugProxyData(pid, &SS5ProxyData);
       
@@ -1161,6 +1155,18 @@ UINT S5Core( int cSocket )
       else if( MODBANDWIDTH() && BANDWIDTH() ) {
           SS5Modules.mod_bandwidth.Bandwidth( btv, &SS5ProxyData, &SS5Facilities );
       }
+
+    /**
+     * 判断数据流走向, 在ReceivingData中根据SocketId判断数据从何而来
+     * 监听开始时SS5ProxyData.Fd = 0或1, 若receive从客户端接受数据, 则置Fd = 0, send将向应用服务器端发送数
+     * 监听开始时SS5ProxyData.Fd = 0或1, 若receive从应用服务器端接受数据, 则置Fd = 1, send将向客户端发送数据
+     */
+    if(!SS5ProxyData.Fd) {
+      snprintf(logString,256, "数据流走向：客户端（应用）>>>>>>>>>>>> 应用服务器");  LOGUPDATE()
+    }else{
+      snprintf(logString,256, "数据流走向：应用服务器 >>>>>>>>>>>> 客户端（应用)");  LOGUPDATE()
+    }
+
       /*
        *    Module FILTER: call --> Filtering
        *    MODFILTER() 模块是否加载成功
@@ -1171,20 +1177,19 @@ UINT S5Core( int cSocket )
       // (如果客户端和交易服务器之间有其它数据协议干扰，则需要取SS5ProxyData数据流中前4字节是否FTD报头，来重置fixup="FTD")
       // 考虑到效率问题，用户客户端只允许CTP应用经过代理，否则会用其它应用数据通过代理严重消耗代理服务器计算资源
       // 故采取配置用户组 fixup="FTD" 来识别交易数据
-      if( MODFILTER() && FILTER() ) {
-        // snprintf(logString, 256, "fixupis %s", SS5Facilities.Fixup);
-        // LOGUPDATE()
-        // 如果不是FTD协议则不做过滤处理
+      S5DebugFacilities(pid,SS5Facilities);
+      if( MODFILTER() && FILTER() && !SS5ProxyData.Fd ) {  // 只过滤从客户端（应用）接收到的数据, 接收到数据后Fd=0
+        // 如果不是FTD协议组用户数据则不做过滤处理
         if(!STREQ(SS5Facilities.Fixup,"ftd",sizeof("ftd") - 1)){
           snprintf(logString, 256, "disfilter %s protocol", SS5Facilities.Fixup);
           LOGUPDATE()
           DISFILTER()
        }
-       // 
-        S5DebugRequestInfo(pid, SS5RequestInfo);
-        S5DebugUpstreamInfo(pid, SS5RequestInfo);
+       
+        // S5DebugRequestInfo(pid, SS5RequestInfo);
+        // S5DebugUpstreamInfo(pid, SS5RequestInfo);
         S5DebugProxyData(pid, &SS5ProxyData);
-
+    
         if( SS5Modules.mod_filter.Filtering( &SS5ClientInfo, SS5Facilities.Fixup, &SS5ProxyData ) <= ERR ) {
           /*
            *    Get stop time
@@ -1201,7 +1206,7 @@ UINT S5Core( int cSocket )
               (SS5RequestInfo.Cmd==CONNECT)?SS5RequestInfo.DstAddr:SS5ClientInfo.SrcAddr,
               (SS5RequestInfo.Cmd==CONNECT)?SS5RequestInfo.DstPort:SS5ClientInfo.SrcPort);
           LOGUPDATE()
-  
+        
           /*
            *    If balancing enabled, add connection to real
            */
@@ -1242,8 +1247,11 @@ UINT S5Core( int cSocket )
 
           SS5PCLOSE()
         }
-        else
-          DISFILTER()
+        else {
+          // 成功执行过滤操作后
+          // DISFILTER()
+
+        }
       }
 
       /*
@@ -1310,8 +1318,8 @@ UINT S5Core( int cSocket )
       }
 
       /**
-       * SS5ProxyData.Fd = 1, socks服务器与客户端（应用）交互, receive从客户端接受数据, 同时置Fd = 0; send向客户端发送数据
-       * SS5ProxyData.Fd = 0, socks服务器与应用服务器端交互, receive从应用服务器端接受数据, 同时置Fd = 1; send向应用服务器端发送数据
+       * 监听开始时SS5ProxyData.Fd = 0或1, 若receive从客户端接受数据, 则置Fd = 0, send向应用服务器端发送数
+       * 监听开始时SS5ProxyData.Fd = 0或1, 若receive从应用服务器端接受数据, 则置Fd = 1, send向客户端发送数据
        */
       if( !SS5ProxyData.Fd )
         tBS +=SS5ProxyData.TcpRBufLen;

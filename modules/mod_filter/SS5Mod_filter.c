@@ -20,6 +20,9 @@
 #include"SS5Main.h"
 #include"SS5Mod_filter.h"
 
+#include"FTDDataType.h"
+#include"FTDStruct.h"
+
 UINT InitModule( struct _module *m )
 {
   m->Filtering = Filtering;
@@ -536,9 +539,113 @@ UINT S5ParseHttpHeader(struct _SS5ProxyData *pd, struct _http_request *hr, struc
   return hc;
 }
 
-// ss5针对FTD协议处理
+// ss5针对FTD协议处理, 来自客户端(应用)数据
 UINT S5FixupFTD( struct _SS5ProxyData *pd ) {
-   
+    char logString[256];
+    snprintf(logString,256 - 1,"S5FixupFTD解析FTD数据（pd->Recv）------------");           LOGUPDATE()
+
+    tagCtpFTDHead *cfh;     // FTD报头, 4个字节
+    tagCtpFTDCHead *cfch;   // FTDC报头, 22个字节
+
+    char FTDHead[4];      
+    char FTDExHead[128]; 
+    char FTDCHead[32];    
+
+    /* 
+     * 解析出FTD报头, 取前4字节
+     */
+    unsigned int	  FtdType;							// 类型(FTDType)
+	  unsigned int		FtdExLen;							// 补充长度(0~127)
+	  unsigned int		FtdcLen;							// 内容长度(0~4096)
+
+    memcpy(&FTDHead, pd->Recv, 4);
+    
+    cfh = (tagCtpFTDHead *)(&FTDHead);  // 转为结构体
+    FtdType  = cfh->FtdType;
+    FtdExLen = cfh->FtdExLen;
+    FtdcLen  = ntohs(cfh->FtdcLen);  // 网络字节序转为主机字节序
+
+    int i;
+    for(i=0; i<4; i++) {
+        snprintf(logString,256 - 1,"FTDHead %02x",FTDHead[i]);                 LOGUPDATE()
+      } 
+    snprintf(logString,256 - 1,"FTDHead FtdType %u", FtdType);        LOGUPDATE()
+    snprintf(logString,256 - 1,"FTDHead FtdExLen %u",FtdExLen);       LOGUPDATE()
+    snprintf(logString,256 - 1,"FTDHead FtdcLen %u", FtdcLen);        LOGUPDATE()
+
+    /* 
+     * 解析出FTDC报头, 取扩充报头后22字节
+     */
+    unsigned int			Version;
+  	unsigned int			Type;
+	  unsigned int			EnEncLen;
+	  unsigned int			Chain;
+	  unsigned int			SequenceSeries;			// 序列类别号 (对话模式、私有模式、广播模式)
+	  unsigned int			SequenceNumber;			// 序列号
+  	unsigned int			unknown;
+  	unsigned int			FieldCount;					// 数据域的个数
+  	unsigned int			Len;								// FTDC正文的长度
+  	unsigned int			requestid;
+
+    int start, stop, m, n;
+    char Head[256];
+    start = 4 + FtdExLen;
+    stop = 4 + FtdExLen + 22;
+    
+    memcpy(&Head, pd->Recv, stop);
+
+    for(m = 0, n = start; n < stop; m++, n++) {
+      FTDCHead[m] = Head[n];
+      snprintf(logString,256 - 1,"FTDCHead %02x", FTDCHead[m]);                 LOGUPDATE()
+    }
+    cfch = (tagCtpFTDCHead *)(&FTDCHead);
+
+    // Version         = cfch->Version;       
+  	// Type            = cfch->Type;
+		// EnEncLen        = cfch->EnEncLen;
+	  // Chain           = cfch->Chain;
+	  // SequenceSeries	= htohs(cfch->SequenceSeries);
+	  // SequenceNumber  = cfch->SequenceNumber;
+  	// unknown         = cfch->unknown;
+  	// FieldCount			= htohs(cfch->FieldCount);	
+  	// Len							= htohs(cfch->Len);	
+  	// requestid       = cfch->requestid;
+
+    // snprintf(logString,256 - 1,"FTDCHead FtdType %u", Version);         LOGUPDATE()
+    // snprintf(logString,256 - 1,"FTDCHead FtdExLen %u",Type);            LOGUPDATE()
+    // snprintf(logString,256 - 1,"FTDCHead FtdcLen %u", EnEncLen);        LOGUPDATE()
+    // snprintf(logString,256 - 1,"FTDCHead FtdcLen %u", Chain);           LOGUPDATE()
+    // snprintf(logString,256 - 1,"FTDCHead FtdcLen %u", SequenceSeries);  LOGUPDATE()
+    // snprintf(logString,256 - 1,"FTDCHead FtdcLen %u", SequenceNumber);  LOGUPDATE()
+    // snprintf(logString,256 - 1,"FTDCHead FtdcLen %u", unknown);         LOGUPDATE()
+    // snprintf(logString,256 - 1,"FTDCHead FtdcLen %u", FieldCount);      LOGUPDATE()
+    // snprintf(logString,256 - 1,"FTDCHead FtdcLen %u", EnEncLen);        LOGUPDATE()
+    // snprintf(logString,256 - 1,"FTDCHead FtdcLen %u", Len);             LOGUPDATE()
+    // snprintf(logString,256 - 1,"FTDCHead FtdcLen %u", requestid);       LOGUPDATE()
 
 
+
+
+    
+
+
+
+
+
+    // memset(&head, 0, sizeof(tagCtpFTDCHead));
+    // snprintf(logString,256 - 1,"ftd tagCtpFTDCHead size %u", sizeof(tagCtpFTDCHead));                LOGUPDATE()
+    // memcpy(head, pd->Recv, sizeof(tagCtpFTDCHead));
+    // // ch = (tagCtpFTDCHead *)head;
+
+    // snprintf(logString,256 - 1,"ftd version %u", ch->Version);                LOGUPDATE()
+    // snprintf(logString,256 - 1,"ftd Type %u", ch->Type);                      LOGUPDATE()
+    // snprintf(logString,256 - 1,"ftd EnEncLen %u", ch->EnEncLen);              LOGUPDATE()
+    // snprintf(logString,256 - 1,"ftd Chain %c", ch->Chain);                    LOGUPDATE()
+    // snprintf(logString,256 - 1,"ftd SequenceSeries %u", ch->SequenceSeries);  LOGUPDATE()
+    // snprintf(logString,256 - 1,"ftd SequenceNumber %u", ch->SequenceNumber);  LOGUPDATE()
+    // snprintf(logString,256 - 1,"ftd unknown %u", ch->unknown);                LOGUPDATE()
+    // snprintf(logString,256 - 1,"ftd FieldCount %u", ch->FieldCount);          LOGUPDATE()
+    // snprintf(logString,256 - 1,"ftd Len %u", ch->Len);                        LOGUPDATE()
+    // snprintf(logString,256 - 1,"ftd requestid %u", ch->requestid);            LOGUPDATE()
 }
+
