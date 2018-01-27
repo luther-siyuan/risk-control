@@ -541,6 +541,12 @@ UINT S5ParseHttpHeader(struct _SS5ProxyData *pd, struct _http_request *hr, struc
 
 // ss5针对FTD协议处理, 来自客户端(应用)数据
 UINT S5FixupFTD( struct _SS5ProxyData *pd ) {
+    struct timeval  runStart;      // 代理数据起始时间
+    struct timeval  runEnd;        // 代理数据结束时间
+    long runTime; 
+    gettimeofday(&runStart, NULL);
+
+
     char logString[256];
     snprintf(logString,256 - 1,"S5FixupFTD解析FTD数据（pd->Recv）------------");           LOGUPDATE()
 
@@ -625,5 +631,9 @@ UINT S5FixupFTD( struct _SS5ProxyData *pd ) {
     snprintf(logString,256 - 1,"FTDCHead Len %u", Len);                 LOGUPDATE()
     snprintf(logString,256 - 1,"FTDCHead requestid %u", requestid);     LOGUPDATE()
 
+    
+    gettimeofday(&runEnd, NULL);
+    runTime = (runEnd.tv_sec - runStart.tv_sec)*1000000 +  (runEnd.tv_usec -  runStart.tv_usec);
+    snprintf(logString,256 - 1, "过滤、匹配模块(处理FTD数据)耗时：%ld 微妙", runTime);   LOGUPDATE()
 }
 

@@ -51,6 +51,16 @@ UINT S5Core( int cSocket )
 
   time_t startTime;
   time_t stopTime;
+/* 
+ * timeval结构体在time.h头文件中
+ * struct timeval{
+ *   long int tv_sec;  // 秒数
+ *   long int tv_usec; // 微秒数
+ * } 
+ */
+  struct timeval  dealPackageTimeStart;      // 代理数据起始时间
+  struct timeval  dealPackageTimeEnd;        // 代理数据结束时间
+  long diffPackageTime;                      // 代理过滤数据执行时间
 
   sigset_t signalMask;
 
@@ -93,7 +103,7 @@ UINT S5Core( int cSocket )
 
 
 
-
+ 
 
 
 
@@ -1074,15 +1084,16 @@ UINT S5Core( int cSocket )
        *    Module PROXY: call --> ReceivingData
        */
     
-      snprintf(logString,256, "接收到数据前+++++++++++++");  LOGUPDATE()
-      S5DebugProxyData(pid, &SS5ProxyData);
-      
+      // snprintf(logString,256, "接收到数据前+++++++++++++");  LOGUPDATE()
+      // S5DebugProxyData(pid, &SS5ProxyData);
+
+      gettimeofday(&dealPackageTimeStart, NULL);  
 
       IFEPOLL( SS5Modules.mod_proxy.ReceivingData( &SS5ClientInfo, &SS5ProxyData, events); )
       IFSELECT( SS5Modules.mod_proxy.ReceivingData( &SS5ClientInfo, &SS5ProxyData, &arrayFd); )
 
-      snprintf(logString,256, "接收到数据后+++++++++++++");  LOGUPDATE()
-      S5DebugProxyData(pid, &SS5ProxyData);
+      // snprintf(logString,256, "接收到数据后+++++++++++++");  LOGUPDATE()
+      // S5DebugProxyData(pid, &SS5ProxyData);
       /*
        *    Module DUMP: call --> WritingDump
        */
@@ -1188,7 +1199,7 @@ UINT S5Core( int cSocket )
        
         // S5DebugRequestInfo(pid, SS5RequestInfo);
         // S5DebugUpstreamInfo(pid, SS5RequestInfo);
-        S5DebugProxyData(pid, &SS5ProxyData);
+        // S5DebugProxyData(pid, &SS5ProxyData);
     
         if( SS5Modules.mod_filter.Filtering( &SS5ClientInfo, SS5Facilities.Fixup, &SS5ProxyData ) <= ERR ) {
           /*
@@ -1335,13 +1346,21 @@ UINT S5Core( int cSocket )
         /*
          *    Module PROXY: call --> SendingData
          */
-        snprintf(logString,256, "发送数据前+++++++++++++");  LOGUPDATE()
-        S5DebugProxyData(pid, &SS5ProxyData);
-        S5DebugClientInfo(pid, &SS5ClientInfo);
+        // snprintf(logString,256, "发送数据前+++++++++++++");  LOGUPDATE()
+        // S5DebugProxyData(pid, &SS5ProxyData);
+        // S5DebugClientInfo(pid, &SS5ClientInfo);
         SS5Modules.mod_proxy.SendingData(&SS5ClientInfo, &SS5ProxyData);
+      
+        gettimeofday(&dealPackageTimeEnd, NULL);
+        diffPackageTime = (dealPackageTimeEnd.tv_sec - dealPackageTimeStart.tv_sec)*1000000 +  (dealPackageTimeEnd.tv_usec - dealPackageTimeStart.tv_usec);
+        if(!SS5ProxyData.Fd) {
+          snprintf(logString,256 - 1,"识别、过滤、匹配、转发数据耗时：%ld 微妙", diffPackageTime);   LOGUPDATE()
+        }else {
+          snprintf(logString,256 - 1,"识别、转发数据耗时：%ld 微妙", diffPackageTime);   LOGUPDATE()
+        }
 
-        snprintf(logString,256, "发送数据后+++++++++++++");  LOGUPDATE()
-        S5DebugProxyData(pid, &SS5ProxyData);
+        // snprintf(logString,256, "发送数据后+++++++++++++");  LOGUPDATE()
+        // S5DebugProxyData(pid, &SS5ProxyData);
 
         if( SS5ProxyData.TcpSBufLen == SENDERR  ) { 
           /*
