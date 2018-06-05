@@ -541,30 +541,16 @@ UINT S5ParseHttpHeader(struct _SS5ProxyData *pd, struct _http_request *hr, struc
 
 // ss5针对FTD协议处理, 来自客户端(应用)数据
 UINT S5FixupFTD( struct _SS5ProxyData *pd ) {
-    struct timeval  runStart;      // 代理数据起始时间
-    struct timeval  runEnd;        // 代理数据结束时间
-    long runTime; 
-    gettimeofday(&runStart, NULL);
-
-
-    char logString[256];
-    snprintf(logString,256 - 1,"S5FixupFTD解析FTD数据（pd->Recv）------------");           LOGUPDATE()
-
     tagCtpFTDHead *cfh;       // FTD报头, 4个字节
     tagCtpFTDCHead *cfch;     // FTDC报头, 22个字节
-
     unsigned char FTDHead[4];      
-    unsigned char FTDCHead[32];    // 必须无符号, 不然无符号数据转有符号数据会溢出
-
-    /* 
-     * 解析出FTD报头, 取前4字节
-     */
+    unsigned char FTDCHead[32];       // 必须无符号, 不然无符号数据转有符号数据会溢出
+    // 解析出FTD报头, 取前4字节
     unsigned int FtdType;							// 类型(FTDType)
 	  unsigned int FtdExLen;						// 补充长度(0~127)
 	  unsigned int FtdcLen;							// 内容长度(0~4096)
 
-    memcpy(&FTDHead, pd->Recv, 4);
-    
+    memcpy(&FTDHead, pd->Recv, 4);  
     cfh = (tagCtpFTDHead *)(&FTDHead);  // 转为结构体
     FtdType  = cfh->FtdType;
     FtdExLen = cfh->FtdExLen;
